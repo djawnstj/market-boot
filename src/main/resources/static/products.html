@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="styles/products.css">
+<title>상품 목록</title>
+</head>
+<body>
+
+	<div id="container">
+		<a href="/history.do">
+			<button>구매 내역</button>
+		</a>
+	</div>
+
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>		
+
+        const container = document.querySelector("#container");
+		
+		const createItem = (img, title, price, stock) => (`
+				<div class="Item" >
+				
+			    <div class="Img" >
+			        <img src=${img} alt="product-img" />
+			    </div>
+			
+			    <div class="Contents" >
+			
+			        <div class="Contents1" >
+			            <div>${title}</div>
+			            <div></div>
+			            <div></div>                    
+			        </div>
+			
+			        <div class="Contents2" >
+			            <div></div>
+			            <div class="Contents3" >
+			                <div class="IconBox" >
+			                    <img src="assets/like.png" alt="like" />
+			                    <p>${stock}</p>
+			                </div>
+			                <div class=IconBox >
+			                    <img src="assets/chat.png" alt="chat" />
+			                    <p>0</p>
+			                </div>
+			                <div class="IconBox" >
+			                    <img src="assets/price.png" alt="price" />
+			                    <p>\₩${price.toLocaleString()}₩\</p>
+			                </div>
+			            </div>
+			        </div>
+			
+			    </div>
+			
+			</div>
+		`);
+		
+		const postProductList = async () => {
+			
+			const result = await axios.post("http://localhost:8080/market-api/product-list")
+			setProductList(result.data);
+			
+			console.log(result.data)
+			
+		}
+		
+		const setProductList = (products) => {
+
+	        products.map((value, index) => container.insertAdjacentHTML('beforeend', createItem(value.productImage, value.productTitle, value.productPrice, value.productStock)));
+
+		}
+		
+    	
+		window.onload = postProductList;
+	
+	</script>
+
+</body>
+</html>

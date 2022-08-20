@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ainspace.market.mapper.MarketMapper">
+
+	<select id="getMemberList" resultType="MemberVO">
+		select * from members;
+	</select>
+	
+	<select id="logIn" parameterType="MemberVO" resultType="int">
+		select count(*) from members where mem_id = #{memId} and mem_pw = #{memPw};
+	</select>
+	
+	<select id="getProductList" resultType="ProductVO">
+		select * from products;
+	</select>
+	
+	<select id="getHistoriesByMemId" parameterType="MemberVO" resultType="HistoryVO">
+		select * from histories where history_id = #{memId} order by history_seq desc;
+	</select>
+	
+	<update id="updateHistoryStatus" parameterType="HistoryVO">
+		update histories set history_status = #{historyStatus} where history_seq = #{historySeq};
+	</update>
+    
+</mapper>

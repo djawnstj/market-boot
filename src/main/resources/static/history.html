@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet"
+	href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
+<title>Insert title here</title>
+</head>
+<body>
+
+	<div id="grid"></div>
+	
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
+	<script>
+	
+		const Grid = tui.Grid;
+		
+		class CustomRenderer {
+			// 생성자 함수
+			constructor(props) {
+				const el = document.createElement('img');
+				el.src = 'some-image-link';
+				el.style.height = "50px";
+		
+				this.el = el;
+				this.render(props);
+			}
+	
+			getElement() {
+				return this.el;
+			}
+	
+			render(props) {
+				// you can change the image link as changes the `value`
+				this.el.src = String(props.value);
+			}
+		}
+		
+		/* 번호, 이름, 가격, 개수, 이미 */
+		
+		const grid = new Grid({
+			el: document.querySelector("#grid"),
+			columns: [
+				{
+					header: "구매 번호",
+					name: "seq"
+				},
+				{
+					header: "상품 이름",
+					name: "title"
+				},
+				{
+					header: "구매 가격",
+					name: "price"
+				},
+				{
+					header: "구매 개수",
+					name: "count"
+				},
+				{
+					header: "이미지",
+					name: "img",
+					
+					renderer: CustomRenderer
+				},
+			]
+		});
+
+		const dataList = [];
+		
+		const postHistoryList = async () => {
+			const result = await axios.post("http://localhost:8080/market-api/history-list", {
+				memId: "test1"
+			});
+			await result.data.map(value => setHistoryList(value));
+			grid.resetData(dataList);
+		}
+		
+		const setHistoryList = (data) => {
+			dataList.push({
+				seq: data.historySeq,
+				title: data.historyTitle,
+				price: data.historyPrice,
+				count: data.historyCount,
+				img: data.historyImg
+			});
+		}
+		
+		window.onload = postHistoryList;
+	
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet"
+	href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
+<title>Insert title here</title>
+</head>
+<body>
+
+	<div id="grid"></div>
+	
+	<div>
+		<form id="searchBox">
+			<input id="searchInput" type="text" placeholder="회원 ID를 검색하세요." >
+			<button>검색</button>
+		</form>
+	
+		<div id="historySearch"></div>
+	</div>
+	
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
+	<script>
+	
+		const Grid = tui.Grid;
+		
+		/* 이름, 나이, 주소, 구매내역, 회원등급 */
+		
+		const grid = new Grid({
+			el: document.querySelector("#grid"),
+			columns: [
+				{
+					header: "이름",
+					name: "name"
+				},
+				{
+					header: "나이",
+					name: "age"
+				},
+				{
+					header: "주소",
+					name: "address"
+				},
+				{
+					header: "구매내역",
+					name: "history"
+				},
+				{
+					header: "회원등급",
+					name: "grade"
+				},
+			]
+		});
+
+		const dataList = [];
+		
+		const postMemberList = async () => {
+			const result = await axios.post("http://localhost:8080/market-api/member-list");
+			await result.data.map(value => setMemberData(value));
+			grid.resetData(dataList);
+		}
+		
+		const setMemberData = (data) => {
+			dataList.push({
+				name: data.memName,
+				age: data.memAge,
+				address: data.memAddress,
+				history: "5",
+				grade: data.memGrade
+			});
+		}
+		
+		class CustomRenderer {
+			// 생성자 함수
+			constructor(props) {
+				const el = document.createElement('img');
+				el.src = 'some-image-link';
+				el.style.height = "50px";
+		
+				this.el = el;
+				this.render(props);
+			}
+	
+			getElement() {
+				return this.el;
+			}
+	
+			render(props) {
+				// you can change the image link as changes the `value`
+				this.el.src = String(props.value);
+			}
+		}
+		
+		const postUpdateStatus = async (value) => {
+			await axios.post("http://localhost:8080/market-api/update-history-status", {
+				historyStatus: value
+			});
+			postHistroyList(searchInput.value);
+		}
+		
+		class BtnCellRenderer {
+			
+			constructor(props) {
+			    const { value } = props.columnInfo.renderer.options;
+				const el = document.createElement('button');
+				el.innerHTML = props.value;
+				console.log(props.value)
+				if (props.value == 0) {
+					el.innerHTML = "배송 시작";
+					el.addEventListener("click", () => {
+						postUpdateStatus(1);
+					});
+				} else if (props.value == 1) {
+					el.innerHTML = "배송 완료";
+					el.addEventListener("click", () => {
+						postUpdateStatus(1);
+					});
+				} else if (props.value == 2) {
+					el.innerHTML = "배송 완료";
+				}
+				
+				this.el = el;
+				this.render(props);
+		    }
+	
+			getElement() {
+				return this.el;
+			}
+	
+			render(props) {
+				// you can change the image link as changes the `value`
+				this.el.src = String(props.value);
+			}
+		    
+		}
+		
+		const searchGrid = new Grid({
+			el: document.querySelector("#historySearch"),
+			columns: [
+				{
+					header: "구매 번호",
+					name: "seq"
+				},
+				{
+					header: "상품 이름",
+					name: "title"
+				},
+				{
+					header: "구매 가격",
+					name: "price"
+				},
+				{
+					header: "구매 개수",
+					name: "count"
+				},
+				{
+					header: "이미지",
+					name: "img",
+					
+					renderer: CustomRenderer
+				},
+				{
+					header: "배송 상태",
+					name: "status",
+				},
+				{
+					header: "배송 상태 변경",
+					name: "statusBtn",
+					renderer: {
+						type: BtnCellRenderer,
+						options: {
+						}
+					}
+				}
+				
+			]
+		});
+		
+		let historyList = [];
+		
+		const postHistroyList = async (memId) => {
+			historyList = [];
+			const results = await axios.post("http://localhost:8080/market-api/history-list", {
+				memId: memId
+			});
+			await results.data.forEach(value => setHistoryList(value));
+			searchGrid.resetData(historyList);
+		}
+		
+		const setHistoryList = (data) => {
+			let status = "";
+			if (data.historyStatus == 0) status = "배송 전"
+			else if (data.historyStatus == 1) status = "배송 중"
+			else if (data.historyStatus == 2) status = "배송 완료"
+			else status = "에러"
+			
+			historyList.push({
+				seq: data.historySeq,
+				title: data.historyTitle,
+				price: data.historyPrice,
+				count: data.historyCount,
+				img: data.historyImg,
+				status: status,
+				statusBtn: data.historyStatus
+			});
+		}
+		
+		window.onload = postMemberList;
+		
+		const searchBox = document.querySelector("#searchBox");
+		const searchInput = document.querySelector("#searchInput");
+		
+		searchBox.addEventListener("submit", (event) => {
+			event.preventDefault();
+			postHistroyList(searchInput.value);
+		});
+		
+	</script>
+
+</body>
+</html>

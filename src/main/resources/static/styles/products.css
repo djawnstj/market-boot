@@ -1,0 +1,125 @@
+@charset "UTF-8";
+.Item {
+    width: 98%;
+    height: 150px;
+
+    /* ?가로 가운데 정렬 */
+    margin: 0 auto;
+
+    /* ?자식 세로 가운데 정렬 */
+    display: flex;
+    align-items: center;
+
+    /* ?그림자 */
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.6);
+
+    border-radius: 10px;
+
+    cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.Img {
+    margin-left: 10px;
+}
+.Img img {
+    width: 120px;
+    height: 120px;
+
+    /*
+        ?이미지를 크기에 따라 맞추는 방법
+        ?fill	기본값. 주어진 너비와 높이에 딱 맞도록 사이즈를 조절합니다. 가로 세로 크기에 따라 이미지 뭉게짐.
+        ?contain	가로세로 비율을 유지한 채로 사이즈가 조절되지만, 이미지와 컨테이너 간의 비율이 맞지 않는 경우엔 여백 생김.
+        ?cover	가로세로 비율을 유지한 채로 사이즈가 조절, 비율이 맞지 않더라도 이미지를 확대해 컨테이너를 완전히 채움.
+        ?none	아무것도 하지 않고 본래의 이미지 사이즈를 유지.(이미지가 가운데에 위치함)
+        ?scale-down	none 또는 contain 중에 더 적절한 방향으로 이미지 사이즈를 조절. 
+    */
+    object-fit: cover;
+
+    border-radius: 10px;
+}
+
+.Contents {
+    display: flex;
+    width: 100%;
+    height: 80%;
+    margin-left: 15px;
+    margin-right: 15px;
+    justify-content: space-between;
+    min-width: 0;
+}
+.Contents > div:nth-child(1) {
+    flex-basis: 80%;
+    min-width: 0;
+}
+.Contents > div:nth-child(2) {
+    flex-basis: 20%;
+}
+
+.Contents1 {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+.Contents1 > div:nth-child(1) {
+    flex: 1 0 20%;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.Contents1 > div:nth-child(2) {
+    /* flex: 1 1 60%; */
+
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    white-space: normal;
+    font-size: 1em;
+    line-height: 1em;
+    height: 4em;
+    text-align: left;
+    word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+
+    margin-bottom: 10px;
+}
+.Contents1 > div:nth-child(3) {
+    flex: 1 0 20%;
+}
+
+.Contents2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.Contents2 > div:nth-child(1) {
+    margin-left: auto;
+}
+.Contents2 > div:nth-child(2) {
+    margin-left: auto;
+    height: 1em;
+}
+
+.Contents3 {
+    display: flex;
+}
+
+.IconBox {
+    display: flex;
+}
+.IconBox > img:nth-child(1) {
+    width: 1em;
+    height: 1em;
+    margin-left: 5px;
+}
+.IconBox > p:nth-child(2) {
+    height: 1em;
+    margin: 0;
+    margin-left: 5px;
+}

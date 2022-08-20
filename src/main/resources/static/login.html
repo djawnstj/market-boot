@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://unpkg.com/mvp.css">
+<title>로그인</title>
+</head>
+<body>
+
+	<main>
+		<form id="loginForm">
+		<a href="/admin.do"><img src="assets/admin.png"></a>
+			<div>
+				<h4>ID</h4>
+				<input type="text" placeholder="ID INPUT" id="idInput"
+					name="idInput">
+			</div>
+			<div>
+				<h4>PW</h4>
+				<input type="password" placeholder="PW INPUT" id="pwInput"
+					name="pwInput">
+			</div>
+			<button>LOGIN</button>
+		</form>
+	</main>
+	
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>
+	
+        const loginForm = document.querySelector("#loginForm");
+
+        loginForm.addEventListener("submit", (event) => {
+            // 버튼을 눌러도 페이지 전환이 안됨.
+            event.preventDefault();
+
+            const id = loginForm.querySelector("#idInput");
+            const pw = loginForm.querySelector("#pwInput");
+
+			postLogin(id.value, pw.value);
+        });
+
+		const postLogin = (id, pw) => {
+			
+			axios.post("http://localhost:8080/market-api/log-in", {	
+				memId: id, 
+				memPw: pw 
+			}).then((res) => {
+				processLogin(res.data)
+			}).catch((err) => {
+				console.log(`postLogin() err : ${err}`);
+			});
+			
+		}
+		
+		const processLogin = (result) => {
+			
+			if (result === 1) {
+				window.location.replace("./index.do")
+			} else {
+				alert("ID 또는 PW를 확인해주세요.");
+			}
+		}
+		
+	
+	</script>
+
+</body>
+</html>

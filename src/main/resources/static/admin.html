@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet"
+	href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
+<title>Insert title here</title>
+</head>
+<body>
+	
+	<div id="grid"></div>
+	
+	<div>
+		<input id="searchInput" type="text" placeholder="회원 아이디를 입력하세요">
+		<button onclick="postHistoryList()">검색</button>
+		
+		<div id="historySearch"></div>
+	</div>
+	
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
+	
+	
+	<script type="text/javascript">
+	
+		const Grid= tui.Grid;
+		
+		const grid = new Grid({
+			el: document.querySelector("#grid"),
+			columns: [
+				{
+				header: "이름",
+				name: "name"
+			},
+			{
+				header: "나이",
+				name: "age"
+			},
+			{
+				header: "주소",
+				name: "address"
+			},
+			{
+				header: "구매내역",
+				name: "history"
+			},
+			{
+				header: "회원등급",
+				name: "grade"
+			},
+			{
+				header: "배송 상태",
+				name: "status"
+			}
+		
+		]
+		
+		});
+		
+		const dataList = []; 
+		//빈 dataList 배열 생성
+		
+		const postMemberList = async () => {
+			const result = await axios.post("http://localhost:8080/market-api/member-list");
+			await result.data.map(value => setMemberData(value));
+			grid.resetData(dataList);
+		}
+		
+		const setMemberData = (data) => {
+			dataList.push({
+				name: data.memName,
+				age: data.memAge,
+				address:data.memAddress,
+				history:"5",
+				grade:data.memGrade
+			});
+		}
+		 
+		class CustomRenderer {
+			//생성자함수
+			  constructor(props) { 
+			    const el = document.createElement('img');
+			    el.src = 'some-image-link'; 
+			    el.style.height = "100px";  
+
+			    this.el = el;
+			    this.render(props);
+			  }
+
+			  getElement() {
+			    return this.el;
+			  }
+
+			  render(props) {
+			    // you can change the image link as changes the `value`
+			    this.el.src = String(props.value);
+			  }
+		}
+		
+		
+		
+		const postUpdateStatus = async (seq, value) => {
+			console.log(`postUpdateStatus(${seq}, ${value}) called.`)
+			const result = await axios.post("http://localhost:8080/market-api/update-history-status", {
+				historySeq: seq,
+				historyStatus: value
+			});
+			postHistoryList(searchInput.value);
+		}
+		  
+		class BtnCellRenderer {
+			constructor(props) {
+				const { value } = props.columnInfo.renderer.options;
+				const el = document.createElement('button');
+				
+				if (props.value.length == 2) {
+
+					const historySeq = props.value[0];
+					const historyStatus = props.value[1];
+
+					if (historyStatus == 0) {
+						el.innerHTML = "배송 전";
+						el.addEventListener("click", () => {
+							postUpdateStatus(historySeq, 1);
+						});
+					} else if (historyStatus == 1) {
+						el.innerHTML = "배송 중";
+						el.addEventListener("click", () => {
+							postUpdateStatus(historySeq, 2);
+						});
+					} else if (historyStatus == 2) {
+						el.innerHTML = "배송 완료"
+					}
+				
+					this.el = el;
+					this.render(props);
+					
+				}
+				
+		    }
+	
+			getElement() {
+				return this.el;
+			}
+	
+			render(props) {
+				// you can change the image link as changes the `value`
+				this.el.src = String(props.value);
+			}
+		    
+		}
+		
+	
+		
+		const searchGrid = new Grid({
+			el: document.querySelector("#historySearch"),
+			bodyHeight : 600,
+			columns: [
+				{
+					header: "구매 번호",
+					name: "seq"
+				},
+				{
+					header: "상품 이름",
+					name: "title"
+				},
+				{
+					header: "구매 가격",
+					name: "price"
+				},
+				{
+					header: "구매 개수",
+					name: "count"
+				},
+				{
+					header: "이미지",
+					name: "img",
+					
+					renderer: CustomRenderer
+				},
+				{
+					header:"배송 상태",
+					name: "status",
+				},
+				{
+					header:"배송 상태 변경",
+					name: "statusBtn",
+					renderer: {
+						type : BtnCellRenderer,
+						options : {
+							value :"test!!!"
+						}
+					}
+				}
+			]
+		});
+		
+		let historyList = [];
+
+		const postHistoryList = () => {
+			const memId = document.querySelector("#searchInput").value;
+			historyList = [];
+			axios.post("http://localhost:8080/market-api/history-list", {
+				memId: memId
+			}).then((results) => {
+				results.data.forEach(value => setHistoryList(value));
+				searchGrid.resetData(historyList);
+			});
+		}
+		
+		const setHistoryList = (data) => {
+			console.log(`setHistoryList() called.`);
+			console.log(data);
+			let status = "";
+			let statusBtn = "";
+			if (data.historyStatus == 0) status = "배송 전"; 
+			else if (data.historyStatus == 1) status = " 배송 중" ;
+			else if (data.historyStatus == 2) status = "배송 완료";
+			else status = "error";
+			
+			historyList.push({
+				seq: data.historySeq,
+				title: data.historyTitle,
+				price:data.historyPrice,
+				count:data.historyCount,
+				img:data.historyImg,
+				status:status,
+				statusBtn : [data.historySeq, data.historyStatus]
+			});
+		}
+		
+		window.onload = postMemberList;
+	</script>
+	
+</body>
+</html>
